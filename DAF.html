@@ -1,0 +1,1991 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DAF Quiz</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="{{ url_for('static', filename='js/question.js') }}"></script>
+    <style>
+        :root {
+            /* Light Mode Variables - CYAN THEME for DAF */
+            --primary-hue: 189;
+            /* Cyan */
+            --primary-color: #0891b2;
+            /* Cyan-600 */
+            --primary-gradient: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+            --primary-hover: #0e7490;
+            --primary-light: #ecfeff;
+            /* Cyan-50 */
+            --bg-body: #f3f4f6;
+            --bg-card: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --option-bg: #ffffff;
+            --option-hover: #ecfeff;
+            /* Light cyan tint on hover */
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --danger-color: #ef4444;
+            --success-color: #10b981;
+            /* Added for result screen */
+            --secondary-btn-bg: #9ca3af;
+            --secondary-btn-hover: #6b7280;
+            --progress-bg: #e5e7eb;
+            --header-text: #ffffff;
+            --review-correct-bg: #d1fae5;
+            --review-correct-text: #065f46;
+            --review-wrong-bg: #fee2e2;
+            --review-wrong-text: #991b1b;
+            --review-skipped-bg: #f3f4f6;
+            --review-skipped-text: #374151;
+            --stat-bg: #f9fafb;
+            --card-inner-bg: #f8fafc;
+            /* Added for result screen */
+        }
+
+        [data-theme="dark"] {
+            /* Dark Mode Variables - CYAN THEME */
+            --primary-color: #06b6d4;
+            /* Cyan-500 */
+            --primary-gradient: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+            --primary-hover: #22d3ee;
+            --primary-light: #164e63;
+            /* Cyan-900 for background */
+            --bg-body: #111827;
+            --bg-card: #1f2937;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --border-color: #374151;
+            --option-bg: #263042;
+            --option-hover: #374151;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+            --danger-color: #f87171;
+            --success-color: #34d399;
+            /* Added for result screen */
+            --secondary-btn-bg: #4b5563;
+            --secondary-btn-hover: #374151;
+            --progress-bg: #374151;
+            --header-text: #ffffff;
+            --review-correct-bg: #064e3b;
+            --review-correct-text: #6ee7b7;
+            --review-wrong-bg: #7f1d1d;
+            --review-wrong-text: #fca5a5;
+            --review-skipped-bg: #374151;
+            --review-skipped-text: #d1d5db;
+            --stat-bg: #111827;
+            --card-inner-bg: #1f2937;
+            /* Added for result screen */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px 10px;
+            background-image: radial-gradient(var(--border-color) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .container {
+            background-color: var(--bg-card);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 600px;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        header {
+            background: var(--primary-gradient);
+            color: var(--header-text);
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Header Layout */
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .nav-back-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-back-btn:hover {
+            background-color: rgba(255, 255, 255, 0.35);
+            transform: scale(1.05);
+        }
+
+        .nav-back-btn:active {
+            transform: scale(0.95);
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Header Controls */
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .timer-badge {
+            background-color: rgba(255, 255, 255, 0.15);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes blink-animation {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.8;
+                transform: scale(1.05);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .timer-warning {
+            background-color: var(--danger-color) !important;
+            animation: blink-animation 1s infinite ease-in-out;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Toggle Switch */
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-switch {
+            display: inline-block;
+            height: 26px;
+            position: relative;
+            width: 50px;
+        }
+
+        .theme-switch input {
+            display: none;
+        }
+
+        .slider {
+            background-color: rgba(0, 0, 0, 0.25);
+            bottom: 0;
+            cursor: pointer;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: .4s;
+            border-radius: 34px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .slider:before {
+            background-color: #fff;
+            bottom: 3px;
+            content: "";
+            height: 18px;
+            left: 4px;
+            position: absolute;
+            transition: .4s;
+            width: 18px;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        input:checked+.slider {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(24px);
+        }
+
+        .slider-icon {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9);
+            pointer-events: none;
+        }
+
+        .sun-icon {
+            left: 6px;
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+
+        .moon-icon {
+            right: 6px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        input:checked+.slider .sun-icon {
+            opacity: 0;
+        }
+
+        input:checked+.slider .moon-icon {
+            opacity: 1;
+        }
+
+
+        /* Progress Bar */
+        .progress-container {
+            height: 6px;
+            background-color: var(--progress-bg);
+            width: 100%;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary-gradient);
+            width: 0%;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px rgba(8, 145, 178, 0.3);
+        }
+
+        /* Enhanced Dashboard Panel */
+        .dashboard-panel {
+            background-color: var(--bg-card);
+            border-radius: 16px;
+            margin: 0 25px 20px 25px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .quiz-stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1px;
+            /* For divider effect */
+            background-color: var(--border-color);
+            /* Creates borders between items */
+        }
+
+        .stat-box {
+            background-color: var(--bg-card);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 10px;
+            transition: background-color 0.2s;
+        }
+
+        .stat-box:hover {
+            background-color: var(--option-hover);
+        }
+
+        .stat-icon {
+            margin-bottom: 6px;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .stat-box.answered .stat-value {
+            color: var(--primary-color);
+        }
+
+        .stat-box.answered .stat-icon {
+            color: var(--primary-color);
+        }
+
+        .stat-box.skipped .stat-value {
+            color: #f59e0b;
+        }
+
+        .stat-box.skipped .stat-icon {
+            color: #f59e0b;
+        }
+
+        .stat-box.remaining .stat-value {
+            color: var(--text-muted);
+        }
+
+        .stat-box.remaining .stat-icon {
+            color: var(--text-muted);
+        }
+
+        .navigator-trigger {
+            width: 100%;
+            background: var(--stat-bg);
+            border: none;
+            border-top: 1px solid var(--border-color);
+            padding: 12px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .navigator-trigger:hover {
+            background: var(--border-color);
+            color: var(--text-main);
+        }
+
+        .navigator-trigger i {
+            transition: transform 0.3s ease;
+        }
+
+        .navigator-trigger.active {
+            background-color: var(--bg-card);
+            color: var(--primary-color);
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .navigator-trigger.active i {
+            transform: rotate(180deg);
+        }
+
+        .navigator-grid {
+            display: none;
+            /* JS toggles this */
+            grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
+            gap: 8px;
+            padding: 20px;
+            background-color: var(--bg-card);
+            max-height: 300px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .navigator-grid.open {
+            display: grid;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .nav-btn {
+            height: 40px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--text-muted);
+            transform: scale(1.05);
+        }
+
+        .nav-btn.answered {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 2px 4px rgba(8, 145, 178, 0.2);
+        }
+
+        .nav-btn.current {
+            border: 2px solid var(--text-main);
+            transform: scale(1.1);
+            z-index: 2;
+            font-weight: 800;
+            background: var(--bg-card);
+        }
+
+        /* Screen States */
+        .screen {
+            padding: 2rem;
+            display: none;
+            animation: fadeIn 0.4s ease;
+            flex-grow: 1;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* Start Screen */
+        .start-screen {
+            text-align: center;
+            padding-top: 1rem;
+        }
+
+        .start-screen h2 {
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .info-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 25px;
+            margin: 0 auto 30px;
+            max-width: 450px;
+            box-shadow: var(--shadow);
+        }
+
+        .info-list li {
+            padding: 16px 0;
+            border-bottom: 1px dashed var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-list li:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            color: var(--text-main);
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            font-size: 1.15em;
+        }
+
+        .note-box {
+            background-color: var(--primary-light);
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            margin-bottom: 30px;
+            color: var(--text-main);
+            border-left: 5px solid var(--primary-color);
+            text-align: left;
+            box-shadow: var(--shadow);
+        }
+
+        /* Quiz Screen */
+        .question-header {
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .question-text {
+            font-size: 1.4rem;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            line-height: 1.4;
+            color: var(--text-main);
+        }
+
+        .options-container {
+            display: grid;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background-color: var(--option-bg);
+            border: 2px solid var(--border-color);
+            padding: 18px 20px;
+            border-radius: 12px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            color: var(--text-main);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option-btn:hover {
+            background-color: var(--option-hover);
+            border-color: #9ca3af;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .option-btn.selected {
+            border-color: var(--primary-color);
+            background-color: var(--primary-light);
+            color: var(--text-main);
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(8, 145, 178, 0.15);
+        }
+
+        .option-marker {
+            width: 26px;
+            height: 26px;
+            border: 2px solid var(--text-muted);
+            border-radius: 50%;
+            margin-right: 18px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+            background: transparent;
+            transition: all 0.2s;
+        }
+
+        .option-btn.selected .option-marker {
+            border-color: transparent;
+            background: var(--primary-gradient);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .option-btn.selected .option-marker::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background-color: white;
+            border-radius: 50%;
+        }
+
+        /* Buttons */
+        .controls {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            border: none;
+            padding: 14px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(8, 145, 178, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-btn-bg);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--secondary-btn-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            filter: brightness(90%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        .btn:disabled {
+            background: var(--border-color);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .spacer {
+            flex-grow: 1;
+        }
+
+        /* REDESIGNED RESULT SCREEN CSS */
+        .result-screen {
+            text-align: center;
+            padding-top: 1rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .result-header-section {
+            margin-bottom: 2rem;
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .result-status {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .status-passed {
+            color: var(--success-color);
+            text-shadow: 0 2px 10px rgba(16, 185, 129, 0.2);
+        }
+
+        .status-failed {
+            color: var(--danger-color);
+            text-shadow: 0 2px 10px rgba(239, 68, 68, 0.2);
+        }
+
+        .result-message {
+            color: var(--text-muted);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .new-score-card {
+            background: var(--card-inner-bg);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            gap: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Score Circle Left Side */
+        .score-circle-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+        }
+
+        .score-circle-new {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            background: var(--bg-card);
+            /* Inner circle bg */
+        }
+
+        /* Creating the glowing border effect using pseudo-element */
+        .score-circle-new::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 50%;
+            z-index: -1;
+            /* Gradient set dynamically via JS usually, defaulting to danger for layout */
+            background: conic-gradient(var(--danger-color) 0%, var(--bg-body) 0%);
+        }
+
+        .score-circle-shadow-pass {
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.4);
+        }
+
+        .score-circle-shadow-fail {
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.4);
+        }
+
+        .score-value-new {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1;
+            color: var(--text-main);
+        }
+
+        .score-label-new {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        /* Stats Grid Right Side */
+        .result-stats-grid {
+            flex: 1.5;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px 40px;
+            text-align: left;
+            padding-left: 20px;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .stat-item-new {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .stat-label-new {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .stat-value-new {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        /* Responsive Breakpoint for New Card */
+        @media (max-width: 768px) {
+            .new-score-card {
+                flex-direction: column;
+                padding: 30px 20px;
+                gap: 30px;
+            }
+
+            .result-stats-grid {
+                width: 100%;
+                border-left: none;
+                border-top: 1px solid var(--border-color);
+                padding-left: 0;
+                padding-top: 30px;
+                grid-template-columns: 1fr 1fr;
+                text-align: center;
+            }
+
+            .stat-item-new {
+                align-items: center;
+            }
+        }
+
+        /* Review Section */
+        .review-section {
+            text-align: left;
+            margin-top: 40px;
+        }
+
+        .review-header {
+            font-size: 1.4rem;
+            color: var(--text-main);
+            margin-bottom: 20px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .review-header::before {
+            content: '';
+            display: block;
+            width: 8px;
+            height: 32px;
+            background: var(--primary-gradient);
+            border-radius: 4px;
+        }
+
+        .review-container {
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            background-color: var(--bg-card);
+            scrollbar-width: thin;
+            scrollbar-color: var(--text-muted) var(--bg-body);
+            box-shadow: var(--shadow);
+        }
+
+        .review-item {
+            padding: 25px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .review-question {
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--text-main);
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .meta-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-correct {
+            background-color: var(--review-correct-bg);
+            color: var(--review-correct-text);
+        }
+
+        .status-wrong {
+            background-color: var(--review-wrong-bg);
+            color: var(--review-wrong-text);
+        }
+
+        .status-skipped {
+            background-color: var(--review-skipped-bg);
+            color: var(--review-skipped-text);
+        }
+
+        /* Footer */
+        .app-footer {
+            margin-top: auto;
+            border-top: 1px solid var(--border-color);
+            background-color: var(--bg-card);
+            padding: 20px;
+            width: 100%;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal-content h3 {
+            color: var(--text-main);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .modal-content p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            line-height: 1.5;
+            font-size: 1rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 600px) {
+            .screen {
+                padding: 1.5rem 1rem;
+            }
+
+            h1 {
+                font-size: 1.2rem;
+            }
+
+            .timer-badge {
+                padding: 4px 10px;
+                font-size: 0.85rem;
+            }
+
+            .start-screen h2 {
+                font-size: 1.8rem;
+            }
+
+            .question-text {
+                font-size: 1.25rem;
+            }
+
+            .controls {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .controls .btn {
+                flex: 1 1 40%;
+                padding: 14px;
+                font-size: 0.95rem;
+            }
+
+            #submitBtn {
+                width: 100%;
+                flex-basis: 100%;
+                margin-top: 5px;
+            }
+
+            .spacer {
+                display: none;
+            }
+
+            .result-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .header-controls {
+                gap: 10px;
+            }
+
+            .dashboard-panel {
+                margin: 0 0 20px 0;
+                border-radius: 12px;
+            }
+
+            .quiz-stats-row {
+                gap: 1px;
+            }
+
+            .stat-value {
+                font-size: 1.1rem;
+            }
+
+            .stat-label {
+                font-size: 0.6rem;
+            }
+
+            .navigator-trigger {
+                font-size: 0.75rem;
+                padding: 10px;
+            }
+
+            .app-footer {
+                padding: 15px 10px;
+            }
+
+            .modal-content {
+                padding: 1.5rem;
+            }
+
+            .modal-actions .btn {
+                flex: 1;
+                padding: 12px 10px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <div class="header-left">
+                <a href="index.html" class="nav-back-btn" id="backToHomeBtn" title="Back to Home">
+                    <i data-lucide="arrow-left"></i>
+                </a>
+                <h1><i data-lucide="calculator"></i> DAF Quiz</h1>
+            </div>
+            <div class="header-controls">
+                <!-- Dark Mode Toggle -->
+                <label class="theme-switch-wrapper" title="Toggle Dark Mode">
+                    <div class="theme-switch">
+                        <input type="checkbox" id="themeToggle">
+                        <span class="slider">
+                            <span class="slider-icon sun-icon">☀️</span>
+                            <span class="slider-icon moon-icon">🌙</span>
+                        </span>
+                    </div>
+                </label>
+
+                <div class="timer-badge" id="timerBadge" style="display: none;">
+                    <i data-lucide="timer" style="width: 16px; height: 16px;"></i>
+                    <span id="timeDisplay">60:00</span>
+                </div>
+            </div>
+        </header>
+        <div class="progress-container" id="progressContainer" style="display: none;">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <!-- Start Screen -->
+        <div class="screen start-screen active" id="startScreen">
+            <h2>DAF Assessment</h2>
+
+            <div class="info-card">
+                <ul class="info-list">
+                    <li>
+                        <span class="info-label">Test Questions</span>
+                        <span class="info-value">100</span>
+                    </li>
+                    <li>
+                        <span class="info-label">Time Limit</span>
+                        <span class="info-value">60 Mins</span>
+                    </li>
+                    <li>
+                        <span class="info-label">Pass Criteria</span>
+                        <span class="info-value">50%</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="note-box">
+                <p style="margin-bottom: 5px;"><strong>Note:</strong></p>
+                Questions cover Diploma in Accounting & Finance topics including Financial Accounting, Tally, and GST.
+                Do Not Refresh or Reload the page during the exam.
+                Doing so will cancel your current test and redirect you to the home screen.
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%; max-width: 350px; font-size: 1.15rem; padding: 18px;"
+                onclick="quizApp.startQuiz()">Start Assessment</button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div class="screen" id="quizScreen">
+
+            <!-- Unified Dashboard Card -->
+            <div class="dashboard-panel">
+                <div class="quiz-stats-row">
+                    <div class="stat-box answered">
+                        <div class="stat-icon"><i data-lucide="check-circle-2" width="20"></i></div>
+                        <div class="stat-info" style="text-align:center">
+                            <div class="stat-value" id="dashAnswered">0</div>
+                            <div class="stat-label">Answered</div>
+                        </div>
+                    </div>
+                    <div class="stat-box skipped">
+                        <div class="stat-icon"><i data-lucide="minus-circle" width="20"></i></div>
+                        <div class="stat-info" style="text-align:center">
+                            <div class="stat-value" id="dashSkipped">0</div>
+                            <div class="stat-label">Skipped</div>
+                        </div>
+                    </div>
+                    <div class="stat-box remaining">
+                        <div class="stat-icon"><i data-lucide="circle" width="20"></i></div>
+                        <div class="stat-info" style="text-align:center">
+                            <div class="stat-value" id="dashRemaining">30</div>
+                            <div class="stat-label">Remaining</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="navigator-trigger" onclick="quizApp.togglePalette()" id="navTrigger">
+                    <span>Open Question Map</span>
+                    <i data-lucide="chevron-down" width="16"></i>
+                </button>
+
+                <div class="navigator-grid" id="navigatorGrid">
+                    <!-- Palette buttons injected here -->
+                </div>
+            </div>
+
+            <div class="question-header">
+                <span>Question <span id="currentQuestionNum">1</span> / 30</span>
+            </div>
+
+            <div class="question-text" id="questionText">Loading...</div>
+
+            <div class="options-container" id="optionsContainer"></div>
+
+            <div class="controls">
+                <button class="btn btn-secondary" id="prevBtn" onclick="quizApp.prevQuestion()">Previous</button>
+                <button class="btn btn-primary" id="nextBtn" onclick="quizApp.nextQuestion()">Next</button>
+                <div class="spacer"></div>
+                <button class="btn btn-danger" id="submitBtn" onclick="quizApp.submitQuiz()">Submit Test</button>
+            </div>
+        </div>
+
+        <!-- New Result Screen Structure -->
+        <div class="screen result-screen" id="resultScreen">
+
+            <div class="result-header-section">
+                <div class="result-title">Assessment Completed</div>
+                <div id="resultStatus" class="result-status">FAILED</div>
+                <div id="resultMessage" class="result-message">Don't give up. Review your answers.</div>
+            </div>
+
+            <div class="new-score-card">
+                <!-- Left Side: Circle -->
+                <div class="score-circle-container">
+                    <div class="score-circle-new" id="scoreCircle">
+                        <span class="score-value-new" id="finalScore">0</span>
+                        <span class="score-label-new">Score</span>
+                    </div>
+                </div>
+
+                <!-- Right Side: Stats Grid -->
+                <div class="result-stats-grid">
+                    <div class="stat-item-new">
+                        <span class="stat-label-new">Total Questions</span>
+                        <span class="stat-value-new" id="totalCountResult">100</span>
+                    </div>
+                    <div class="stat-item-new">
+                        <span class="stat-label-new">Time Taken</span>
+                        <span class="stat-value-new" id="timeTakenResult">00:00</span>
+                    </div>
+                    <div class="stat-item-new">
+                        <span class="stat-label-new">Correct</span>
+                        <span class="stat-value-new" id="correctCountResult"
+                            style="color: var(--success-color)">0</span>
+                    </div>
+                    <div class="stat-item-new">
+                        <span class="stat-label-new">Incorrect</span>
+                        <span class="stat-value-new" id="wrongCountResult" style="color: var(--danger-color)">100</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="review-section">
+                <h3 class="review-header">Detailed Answer Review</h3>
+                <div id="reviewContainer" class="review-container">
+                    <!-- Review items injected here -->
+                </div>
+            </div>
+
+            <div style="margin-top: 40px; margin-bottom: 20px;">
+                <button class="btn btn-primary" onclick="quizApp.resetQuiz()">Take Another Test</button>
+            </div>
+        </div>
+
+        <footer class="app-footer">
+            <div class="footer-content">
+                <p>
+                    &copy; <span id="currentYear"></span> Vision Nxt Computer Education. All rights reserved.
+                </p>
+            </div>
+        </footer>
+
+        <!-- Submit Confirmation Modal -->
+        <div id="submitModal" class="modal-overlay">
+            <div class="modal-content">
+                <h3><i data-lucide="alert-circle" width="32" height="32" style="color:var(--danger-color)"></i> Submit
+                    Assessment?</h3>
+                <p>Are you sure you want to finish the test? You cannot change your answers after submitting.</p>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="quizApp.hideSubmitModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="quizApp.confirmSubmit()">Yes, Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Auto-update Footer Year
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // Theme Toggle Logic
+        const themeToggle = document.getElementById('themeToggle');
+        const htmlElement = document.documentElement;
+
+        // Check Local Storage
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            htmlElement.setAttribute('data-theme', savedTheme);
+            if (savedTheme === 'dark') {
+                themeToggle.checked = true;
+            }
+        }
+
+        themeToggle.addEventListener('change', function () {
+            if (this.checked) {
+                htmlElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                htmlElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // DAF (Diploma in Accounting & Finance) Question Bank
+        const fullQuestionBank = questionBank['daf']; /*
+    const fullQuestionBank = [
+            { "q": "MS-Excel uses the _____ Function when creating a data table", "options": ["Average", "Count", "Both (a) & (b)", "Table"], "answer": "Table" },
+            { "q": "In MS-Excel value used in a formula that does not change is called a", "options": ["Cell address", "Constant", "Function", "None of these"], "answer": "Constant" },
+            { "q": "In MS-Excel which elements of worksheet can be protected from accidental modification?", "options": ["Contents", "Objects", "Scenarios", "All of above"], "answer": "All of above" },
+            { "q": "In MS-Excel what does SUMIF function do?", "options": ["Adds up cell values based on a condition", "Adds all the numbers in a range of cells", "Returns a subtotal in a list or database", "Both (a) & (b)"], "answer": "Adds up cell values based on a condition" },
+            { "q": "In MS-Excel Comments put in cells are called", "options": ["Smart tip", "Cell tip", "Web tip", "None of these"], "answer": "Cell tip" },
+            { "q": "In MS-Excel which is used to perform what if analysis?", "options": ["Solver", "Goal seek", "Scenario Manager", "All of above"], "answer": "Scenario Manager" },
+            { "q": "In MS-Excel constant is another name for this type of data", "options": ["number", "equation", "formula", "None of these"], "answer": "number" },
+            { "q": "In MS-Excel the view that puts a blue a blue line around each page that would be printed is the", "options": ["Print Preview", "Normal View", "Page Break Preview", "None of these"], "answer": "Page Break Preview" },
+            { "q": "In MS-Excel which functions will calculate the number of workdays between 6/9/2013 and 8/12/2013", "options": ["Workday", "Date", "Networkday", "Weekday"], "answer": "Weekday" },
+            { "q": "You can check the conditions against _____ when applying conditional formatting", "options": ["Cell value", "Formula", "Both of above", "None of above"], "answer": "Both of above" },
+            { "q": "How can you update the values of formula cells if Auto Calculate mode of Excel is disabled?", "options": ["F8", "P9", "F10", "F11"], "answer": "F10" },
+            { "q": "You want to set such that when you type Baishakh and drag the fill handle, Excel should produce Jestha, Aashadh and so on.", "options": ["Custom List", "Auto Fill Options", "Fill Across Worksheet", "Fill Series"], "answer": "Custom List" },
+            { "q": "Which of the cell pointer indicates you that you can make selection?", "options": ["Doctor's symbol (Big Plus)", "Small thin plus icon", "Mouse Pointer with anchor at the tip", "None of above"], "answer": "Doctor's symbol (Big Plus)" },
+            { "q": "Which of the cell pointer indicates that you can fill series?", "options": ["Doctor's symbol (Big Plus)", "Small thin plus icon", "Mouse Pointer with anchor at the tip", "None of above"], "answer": "Small thin plus icon" },
+            { "q": "Which of the cell pointer indicate that you can move the content to other cell?", "options": ["Doctor's symbol (Big Plus)", "Small thin plus icon", "Mouse Pointer with anchor at the tip", "None of above"], "answer": "Mouse Pointer with anchor at the tip" },
+            { "q": "Ctrl + D shortcut key in Excel will", "options": ["Open the font dialog box", "Apply double underline for the active cell", "Fill down in the selection", "None of above"], "answer": "Fill down in the selection" },
+            { "q": "Which of the following series type is not valid for Fill Series dialog box?", "options": ["Linear", "Growth", "Autofill", "Time"], "answer": "Time" },
+            { "q": "Which of the following you can paste selectively using Paste Special command?", "options": ["Validation", "Formats", "Formulas", "All of above"], "answer": "All of above" },
+            { "q": "What is the shortcut key to replace a data with another in sheet?", "options": ["Ctrl + R", "Ctrl + Shift + R", "Ctrl + H", "Ctrl+F"], "answer": "Ctrl + H" },
+            { "q": "Getting data from a cell located in a different sheet is called", "options": ["Accessing", "Referencing", "Updating", "Functioning"], "answer": "Referencing" },
+            { "q": "A numeric value can be treated as label value if _____ precedes it.", "options": ["Apostrophe (')", "Exclamation (!)", "Hash (#)", "Tilde (~)"], "answer": "Apostrophe (')" },
+            { "q": "Multiple calculations can be made in a single formula using", "options": ["Standard Formulas", "Array Formula", "Complex Formulas", "Smart Formula"], "answer": "Array Formula" },
+            { "q": "An Excel Workbook is a collection of", "options": ["Workbooks", "Worksheets", "Charts", "Worksheets and Charts"], "answer": "Worksheets and Charts" },
+            { "q": "Microsoft Excel is a powerful", "options": ["Word processing package", "Spreadsheet package", "Communication S/W Package", "DBMS package"], "answer": "Spreadsheet package" },
+            { "q": "How do you display current date and time in MS Excel?", "options": ["Date ()", "Today ()", "Now ()", "Time ()"], "answer": "Now ()" },
+            { "q": "In the formula, which symbol specifies the fixed columns or rows?", "options": ["S", "*", "%", "$"], "answer": "$" },
+            { "q": "Excel displays the current cell address in the", "options": ["Formula bar", "Status Bar", "Name Box", "Title Bar"], "answer": "Name Box" },
+            { "q": "Which language is used to create macros in Excel?", "options": ["Visual Basic", "C", "Visual C++", "Java"], "answer": "Visual Basic" },
+            { "q": "Which of the following is not a term of MS-Excel?", "options": ["Cells", "Rows", "Columns", "Document"], "answer": "Document" },
+            { "q": "How many worksheets can a workbook have?", "options": ["3", "8", "255", "None of these"], "answer": "None of these" },
+            { "q": "We can save and protect the workbook by", "options": ["Write Reservation Password", "Protection Password", "Read-only Recommended", "Any of the above"], "answer": "Any of the above" },
+            { "q": "What type of chart is good for single series of data?", "options": ["Column Chart", "Line Chart", "Pie Chart", "Cone Chart"], "answer": "Pie Chart" },
+            { "q": "A features that displays only the data in column (s) according to specified criteria", "options": ["Formula", "Sorting", "Filtering", "Pivot"], "answer": "Filtering" },
+            { "q": "A function inside other function is called", "options": ["Nested Function", "Round Function", "Inner Function", "None of the above"], "answer": "Nested Function" },
+            { "q": "The NOW function calculates the difference in days between two dates.", "options": ["TRUE", "FALSE"], "answer": "FALSE" },
+            { "q": "Which function key is used to enter the edit mode?", "options": ["F2", "F3", "F8", "F9"], "answer": "F2" },
+            { "q": "MS-Excel displays the default paper?", "options": ["Landscape", "Flat", "Portrait", "None of these"], "answer": "Portrait" },
+            { "q": "Excel provides an alignment that is not available in word?", "options": ["Justify", "Left", "Center", "Merge and Center"], "answer": "Merge and Center" },
+            { "q": "Which option is used as group of commands in excel?", "options": ["Formatting", "Goal Seek", "Filter", "Macro"], "answer": "Macro" },
+            { "q": "Format command is on which tab?", "options": ["Home", "Insert", "Data", "Formula"], "answer": "Home" },
+            { "q": "What function the MAX function is used for?", "options": ["To get the maximum value", "To get the lowest value", "To get the average value", "To get the sum"], "answer": "To get the maximum value" },
+            { "q": "What is the maximum zoom rate of Excel?", "options": ["100", "200", "300", "400"], "answer": "400" },
+            { "q": "At what bar does the true value of the cell appear?", "options": ["Formula Bar", "Title Bar", "Menu Bar", "Address Bar"], "answer": "Formula Bar" },
+            { "q": "Which feature allows you to create specific rules?", "options": ["Data Validation", "Chart", "Pivot Table", "Sorting"], "answer": "Data Validation" },
+            { "q": "You can select the current row in MS-Excel Worksheet by pressing?", "options": ["Ctrl + Space bar", "F8+ arrow key", "Shift + arrow key", "Shift + Space bar"], "answer": "Shift + Space bar" },
+            { "q": "To Add up entries from D6 to D10, we use the formula?", "options": ["Add D6.. D10", "@Sum (D6..D10)", "Add D6 to D10", "None of these"], "answer": "@Sum (D6..D10)" },
+            { "q": "Which Of These Keys Are Used In Ms Excel To Insert Current Time In Workbook?", "options": ["Ctrl+:", "Ctrl+", "Ctrl+T", "None"], "answer": "Ctrl+:" },
+            { "q": "Which Function Calculates Your Monthly Mortage Payment?", "options": ["PMT", "PV", "NPER", "All Of Above"], "answer": "PMT" },
+            { "q": "function in Excel tells how many numeric entries are there.", "options": ["COUNT", "NUM", "SUM", "CHKNUM"], "answer": "COUNT" },
+            { "q": "A workbook is a file that contains _____ worksheets.", "options": ["Only one", "Three", "One or more", "None"], "answer": "One or more" },
+            { "q": "Which of the following is not a use of Microsoft Excel?", "options": ["Manage personal finances", "Manage business finances", "Animate your slides to give them greater visual impact", "Create a calendar"], "answer": "Animate your slides to give them greater visual impact" },
+            { "q": "A template is a _____ workbook designed for a specific purpose.", "options": ["Blank", "Preformatted", "Animated", "None"], "answer": "Preformatted" },
+            { "q": "There are numerous options for manually entering data into worksheet cells. Data can be entered...", "options": ["One cell at a time", "In several cells at the same time", "More than one worksheet at the same time", "All of the above"], "answer": "All of the above" },
+            { "q": "Which keyboard key is used to display a key tip badge in Microsoft Excel?", "options": ["Esc key", "Alt key", "Ctrl key", "Home key"], "answer": "Alt key" },
+            { "q": "Keyboard shortcut _____ is used to add spacing between lines or paragraphs of text in a cell.", "options": ["ALT+Enter", "CTRL+Enter", "Enter", "None"], "answer": "ALT+Enter" },
+            { "q": "_____ is the best alternative to MS Excel offered by Google Inc.", "options": ["Google Slides", "Google Sheets", "Google Files", "Google Keep"], "answer": "Google Sheets" },
+            { "q": "Ms Excel 2019 has maximum column width limit is of _____ characters.", "options": ["256", "255", "512", "None"], "answer": "255" },
+            { "q": "MS Excel file can NOT be directly exported as", "options": ["PDF", "TXT", "PPT", "CSV"], "answer": "PPT" },
+            { "q": "Which of the following is not true regarding Conditional Formatting?", "options": ["You can add more than one condition", "You can set condition to look for Bold and apply Italics on them", "You can apply Font border", "You can delete any condition"], "answer": "You can set condition to look for Bold and apply Italics on them" },
+            { "q": "Which of the following is invalid statement?", "options": ["Sheet tabs can be colored", "You can set the column width", "Some picture can be applied as a background of a sheet", "The width of a row and be specified manually or fit automatically"], "answer": "The width of a row and be specified manually or fit automatically" },
+            { "q": "You can set Page Border in Excel from", "options": ["Format Cells dialog", "Formatting toolbar", "Drawing toolbar", "You can not set page border in Excel"], "answer": "You can not set page border in Excel" },
+            { "q": "When all the numbers between 0 and 100 in a range should be displayed in Red Color, apply", "options": ["Use if() function", "Select cells and click Red color", "Apply Conditional Formatting command", "All of above"], "answer": "Apply Conditional Formatting command" },
+            { "q": "The active cell:", "options": ["Is defined by a bold border around the cell.", "Receives the data the user enters", "It is the formula bar", "Only A and B"], "answer": "Only A and B" },
+            { "q": "Text formulas:", "options": ["Replace cell references", "Concatenate and manipulate text", "Return ASCII values", "Show formula error value"], "answer": "Concatenate and manipulate text" },
+            { "q": "You want to track the progress of the stock market on a daily basis. Which type of chart should you use?", "options": ["Pie chart", "Line chart", "Row chart", "Column chart"], "answer": "Line chart" },
+            { "q": "To copy cell contents using drag and drop press the", "options": ["End key", "Shift key", "Ctrl key", "Esc key"], "answer": "Ctrl key" },
+            { "q": "Which of the following is an absolute cell reference?", "options": ["A!!1", "#a#1", "$A$1", "A1"], "answer": "$A$1" },
+            { "q": "The advantage of using a spreadsheet is:", "options": ["calculations can be done automatically", "changing data automatically updates calculations", "more flexibility", "all of the above"], "answer": "all of the above" },
+            { "q": "When you print preview a worksheet", "options": ["the entire worksheet is displayed", "the active portion is displayed", "the selected range is displayed", "a, b and c"], "answer": "a, b and c" },
+            { "q": "Which function Is not available In the Consolidate dialog box?", "options": ["PMT", "MAX", "SUM", "AVERAGE"], "answer": "PMT" },
+            { "q": "Except for the ...... function, a formula with a logical function shows the word 'TRUE' or 'FALSE' as a result", "options": ["IF", "AND", "OR", "NOT"], "answer": "IF" },
+            { "q": "To return the remainder after a number Is divided by a divisor In EXCEL we use the function?", "options": ["ROUND()", "MOD()", "FACT()", "DIV()"], "answer": "MOD()" },
+            { "q": "In Excel which of the following formulas will Excel not be able to calculate?", "options": ["SUM(Sales)-A3", "SUM(A1:A5)/(10-10)", "SUM(A1:A5)*.5", "LCM()"], "answer": "SUM(Sales)-A3" },
+            { "q": "This is not a function category in Excel.", "options": ["Logical", "Financial", "Text", "Data series"], "answer": "Data series" },
+            { "q": "What is the extension of a Microsoft Excel file?", "options": ["msxcl", "xlsx", "xcl", "xlsm"], "answer": "xlsx" },
+            { "q": "How many times undo levels can be used in a worksheet?", "options": ["50", "25", "75", "100"], "answer": "100" },
+            { "q": "The fill function can be _____ to complete formulas in a range.", "options": ["Single clicked", "Double-clicked", "Triple clicked", "Right clicked"], "answer": "Double-clicked" },
+            { "q": "Which logical function returns TRUE if all arguments evaluate TRUE; FALSE if not?", "options": ["OR", "AND", "IF", "ANDIF"], "answer": "AND" },
+            { "q": "What is the correct syntax of IF() function?", "options": ["=IF (logical_test, [value_if_true], [value_if_false])", "=IF (logical_test: [value_if_true], [value_if_false])", "IF (logical_test)", "None"], "answer": "=IF (logical_test, [value_if_true], [value_if_false])" },
+            { "q": "What is the keyboard shortcut to switch between open Excel windows?", "options": ["CTRL + TAB", "ALT + TAB", "CTRL + ALT + TAB", "None"], "answer": "CTRL + TAB" },
+            { "q": "Which function is used to trap and handle errors?", "options": ["IFERROR()", "ERROR()", "IFNA()", "IFTRAP()"], "answer": "IFERROR()" },
+            { "q": "Which function is used to get a date n working days in the future or past?", "options": ["WORKDAY()", "DAY()", "WORKDATE()", "DAYM()"], "answer": "WORKDAY()" },
+            { "q": "Which function is used to get days, months, or years between two dates?", "options": ["DATE()", "DATEDIF()", "DATEVALUE()", "CURDATE()"], "answer": "DATEDIF()" },
+            { "q": "What is the keyboard shortcut to insert a SUM formula in MS Excel?", "options": ["CTRL +=", "ALT+=", "ALT+S", "CTRL+ALT+="], "answer": "ALT+=" },
+            { "q": "What is the keyboard shortcut to insert a new sheet in the current workbook in MS Excel?", "options": ["Shift + F9", "Shift + F10", "Shift + F12", "Shift + F11"], "answer": "Shift + F11" },
+            { "q": "Which option allows you to display all numbers which are less than 0 (negative numbers) in red color in MS Excel?", "options": ["Styling", "Conditional Formatting", "Compare Formatting", "Special Formatting"], "answer": "Conditional Formatting" },
+            { "q": "Show/Hide Gridlines option is available in the _____ Menu.", "options": ["Page Layout", "Data", "Insert", "Format"], "answer": "Page Layout" },
+            { "q": "Which function is used to remove extra spaces from the text in MS Excel?", "options": ["REMOVE()", "TRIM()", "TRUNC()", "All of the above"], "answer": "TRIM()" },
+            { "q": "Which option is used to quickly convert a range of cells to a table with its own style converted in MS Excel?", "options": ["Table Styles", "Stylish Cells", "Format as Table", "Cells as Table"], "answer": "Format as Table" },
+            { "q": "Long text can be broken down into many lines within a cell. You can do this through", "options": ["Justify", "Wrap Text", "Conditional Formatting", "None of the above"], "answer": "Wrap Text" },
+            { "q": "What is represented by the small, black square in the lower-right corner of an active cell or range?", "options": ["Border", "Copy handle", "Fill handle", "None of the above"], "answer": "Fill handle" },
+            { "q": "You are editing a worksheet that you had previously saved. If you want to save the edited sheet without losing the original one, which command should you use?", "options": ["Save", "Save As", "Both (A) and (B)", "None of the above"], "answer": "Save As" },
+            { "q": "Which of the following function will use to find the highest number in a series of number?", "options": ["HIGH (B1:B3)", "MAXIMUM (B1:B3)", "MAX(B1:B3)", "None of the above"], "answer": "MAX(B1:B3)" },
+            { "q": "Which of the following is correct?", "options": ["=POWER(2 3)", "=POWER(2^3)", "=POWER(2,3)", "None of the above"], "answer": "=POWER(2,3)" },
+            { "q": "In MS Excel, Merge 'and Center' is used to", "options": ["Combine and centre the content of the selected cell", "Combine and centre the content of the current row", "Concatenate the text", "None of the above"], "answer": "Combine and centre the content of the selected cell" },
+            { "q": "Under which Tab, the chart options are available in MS Excel?", "options": ["DATA", "INSERT", "REVIEW", "VIEW"], "answer": "INSERT" },
+            { "q": "Which chart type is used to visually compare values across a few categories?", "options": ["Area Chart", "Bar Chart", "Doughnut Chart", "Hierarchy Chart"], "answer": "Bar Chart" },
+            { "q": "What is the keyboard shortcut to insert a new comment in a cell in MS Excel?", "options": ["F2", "CTRL+F2", "ALT+F2", "SHIFT+F2"], "answer": "SHIFT+F2" },
+            { "q": "_____ function is used to convert to text in a number format in MS Excel.", "options": ["Convert()", "Text()", "Num()", "Converttext()"], "answer": "Text()" },
+            { "q": "Which is the correct syntax of the HEX2BIN() function in MS Excel?", "options": ["=HEX2BIN (number, [places])", "=HEX2BIN (number)", "=HEX2BIN (number, BASE, [places])", "=HEX2BIN (number, BASE)"], "answer": "=HEX2BIN (number, [places])" },
+            { "q": "Which option displays the total number of cells, formulas, charts, tables, sheets, etc. in a Workbook?", "options": ["Workbook Statistics", "Statistics", "Excel Statistics", "Workbook Analysis"], "answer": "Workbook Statistics" },
+            { "q": "In which tab of the ribbon can you change Workbook Views to Page Break Preview?", "options": ["View", "Review", "Page Layout", "Data"], "answer": "View" },
+            { "q": "Which of the following features cannot be found in the Data ribbon?", "options": ["What-If Analysis", "PivotTable", "Data Validation", "Text to Columns"], "answer": "PivotTable" },
+            { "q": "Which tab of the ribbon should you go to for removing gridlines on a worksheet?", "options": ["Formulas", "View", "Review", "Developer"], "answer": "View" },
+            { "q": "Which of the following is a selected cell?", "options": ["Current Command", "Default Option", "Active Cell", "Default Cell"], "answer": "Active Cell" },
+            { "q": "Which of the following is an acceptable name for a named range?", "options": ["C7", "subtotal west", "subtotal/west", "subtotal_west"], "answer": "subtotal_west" },
+            { "q": "You want to calculate the number of nonblank cells in your worksheet. Which function should be used?", "options": ["SUM", "COUNTA", "MIN", "MAX"], "answer": "COUNTA" },
+            { "q": "When you insert an Excel file into a Word document, the data are", "options": ["Hyperlinked", "Placed in a word table", "Linked", "Embedded"], "answer": "Placed in a word table" },
+            { "q": "Which function is used to compare a cell value to an array of cells and return a value that matches the location?", "options": ["CountIF", "NOW", "Lookup", "Vlookup"], "answer": "Vlookup" },
+            { "q": "In MS-Excel, 'Arrange All' option is available in _____ tab.", "options": ["View", "Page Layout", "Formulas", "None"], "answer": "View" },
+            { "q": "In MS-Excel, 'Freeze Panes' option is available in _____ tab.", "options": ["Home", "View", "Insert", "None"], "answer": "View" },
+            { "q": "In MS-Excel, 'Hide Window' option is available in _____ tab.", "options": ["Review", "Data", "View", "None"], "answer": "View" },
+            { "q": "In MS-Excel, 'Unhide Window' option is available in _____ tab.", "options": ["View", "Page Layout", "Formulas", "None"], "answer": "View" },
+            { "q": "In MS-Excel, 'View Side by Side two Worksheet' option is available in _____ tab.", "options": ["Home", "View", "Insert", "None"], "answer": "View" },
+            { "q": "In MS-Excel, 'Synchronous Scrolling' option is available in _____ tab.", "options": ["Review", "Data", "View", "None"], "answer": "View" },
+            { "q": "In MS-Excel, 'Reset Window Position' option is available in _____ tab.", "options": ["View", "Page Layout", "Formulas", "None"], "answer": "View" },
+            { "q": "In MS-Excel, 'Save Workspace' option is available in _____ tab.", "options": ["Home", "View", "Insert", "None"], "answer": "View" },
+            { "q": "In MS-Excel, 'Switch Windows' option is available in _____ tab.", "options": ["Review", "Data", "View", "None"], "answer": "View" },
+            { "q": "In MS-Excel, 'Hyperlinks' option is available in _____ tab.", "options": ["View", "Review", "Insert", "None"], "answer": "Insert" },
+            { "q": "In MS-Excel, 'Insert Embedded Object' option is available in _____ tab.", "options": ["Insert", "Data", "Formulas", "None"], "answer": "Insert" },
+            { "q": "In MS-Excel, 'Themes Colors' option is available in _____ tab.", "options": ["Page Layout", "Home", "Insert", "None"], "answer": "Page Layout" },
+            { "q": "In MS-Excel, 'Themes Fonts' option is available in _____ tab.", "options": ["Review", "Insert", "Page Layout", "None"], "answer": "Page Layout" },
+            { "q": "In MS-Excel, 'Themes Effects' option is available in _____ tab.", "options": ["Data", "Page Layout", "Formulas", "None"], "answer": "Page Layout" },
+            { "q": "In MS-Excel, 'Print Area' option is available in _____ tab.", "options": ["Page Layout", "Home", "Insert", "None"], "answer": "Page Layout" },
+            { "q": "In MS-Excel, 'Background of Sheet' option is available in _____ tab.", "options": ["Review", "Insert", "Page Layout", "None"], "answer": "Page Layout" },
+            { "q": "In MS-Excel, 'Print Titles' option is available in _____ tab.", "options": ["Data", "Page Layout", "Formulas", "None"], "answer": "Page Layout" },
+            { "q": "In MS-Excel, 'Shrink Width of Printed Output' option is available in _____ tab.", "options": ["Page Layout", "Home", "Insert", "None"], "answer": "Page Layout" },
+            { "q": "In MS-Excel, 'Shrink Height of Printed Output' option is available in _____ tab.", "options": ["Review", "Insert", "Page Layout", "None"], "answer": "Page Layout" },
+            { "q": "In MS-Excel, 'View Gridlines' option is available in _____ tab.", "options": ["Data", "Page Layout", "Formulas", "None"], "answer": "Page Layout" },
+            { "q": "In MS-Excel, 'Print Gridlines' option is available in _____ tab.", "options": ["Page Layout", "Home", "Insert", "None"], "answer": "Page Layout" },
+            { "q": "In MS-Excel, 'View Row & Column Headings' option is available in _____ tab.", "options": ["Review", "Insert", "Page Layout", "None"], "answer": "Page Layout" },
+            { "q": "In MS-Excel, 'Print Row & Column Headings' option is available in _____ tab.", "options": ["Data", "Page Layout", "Formulas", "None"], "answer": "Page Layout" },
+            { "q": "In MS-Excel, 'Bring to Front the selected object' option is available in _____ tab.", "options": ["Page Layout", "Home", "Insert", "None"], "answer": "Page Layout" },
+            { "q": "In MS-Excel, 'Send to Back the selected object' option is available in _____ tab.", "options": ["Review", "Insert", "Page Layout", "None"], "answer": "Page Layout" },
+            { "q": "In MS-Excel, 'Selection Pane' option is available in _____ tab.", "options": ["Data", "Page Layout", "Formulas", "None"], "answer": "Page Layout" },
+            { "q": "In MS-Excel, 'Align Object' option is available in _____ tab.", "options": ["Page Layout", "Home", "Insert", "None"], "answer": "Page Layout" },
+            { "q": "In MS-Excel, 'Group Object' option is available in _____ tab.", "options": ["Review", "Insert", "Page Layout", "None"], "answer": "Page Layout" },
+            { "q": "In MS-Excel, 'Insert Function' option is available in _____ tab.", "options": ["Formulas", "Page Layout", "Data", "None"], "answer": "Formulas" },
+            { "q": "In MS-Excel, 'Autosum' option is available in _____ tab.", "options": ["Home", "Formulas", "Insert", "None"], "answer": "Formulas" },
+            { "q": "In MS-Excel, 'Recently used Functtions' option is available in _____ tab.", "options": ["Review", "View", "Formulas", "None"], "answer": "Formulas" },
+            { "q": "In MS-Excel, 'Financial Function' option is available in _____ tab.", "options": ["Formulas", "Page Layout", "Data", "None"], "answer": "Formulas" },
+            { "q": "In MS-Excel, 'Logical Function' option is available in _____ tab.", "options": ["Home", "Formulas", "Insert", "None"], "answer": "Formulas" },
+            { "q": "In MS-Excel, 'Text Function' option is available in _____ tab.", "options": ["Review", "View", "Formulas", "None"], "answer": "Formulas" },
+            { "q": "In MS-Excel, 'Date & Time Function' option is available in _____ tab.", "options": ["Formulas", "Page Layout", "Data", "None"], "answer": "Formulas" },
+            { "q": "In MS-Excel, 'Lookup & Reference Function' option is available in _____ tab.", "options": ["Home", "Formulas", "Insert", "None"], "answer": "Formulas" },
+            { "q": "In MS-Excel, 'Math & Trigonometry Function' option is available in _____ tab.", "options": ["Review", "View", "Formulas", "None"], "answer": "Formulas" },
+            { "q": "In MS-Excel, 'More Function' option is available in _____ tab.", "options": ["Formulas", "Page Layout", "Data", "None"], "answer": "Formulas" },
+            { "q": "In MS-Excel, 'Name Manager' option is available in _____ tab.", "options": ["Home", "Formulas", "Insert", "None"], "answer": "Formulas" },
+            { "q": "In MS-Excel, 'Define Name' option is available in _____ tab.", "options": ["Review", "View", "Formulas", "None"], "answer": "Formulas" },
+            { "q": "In MS-Excel, 'Use in Formula' option is available in _____ tab.", "options": ["Formulas", "Page Layout", "Data", "None"], "answer": "Formulas" },
+            { "q": "In MS-Excel, 'Create from Selection' option is available in _____ tab.", "options": ["Home", "Formulas", "Insert", "None"], "answer": "Formulas" },
+            { "q": "In MS-Excel, 'Trace Precedents' option is available in _____ tab.", "options": ["Review", "View", "Formulas", "None"], "answer": "Formulas" },
+            { "q": "In MS-Excel, 'Trace Dependents' option is available in _____ tab.", "options": ["Formulas", "Page Layout", "Data", "None"], "answer": "Formulas" },
+            { "q": "In MS-Excel, 'Evaluate Formula' option is available in _____ tab.", "options": ["Home", "Formulas", "Insert", "None"], "answer": "Formulas" },
+            { "q": "In MS-Excel, 'Watch Window' option is available in _____ tab.", "options": ["Review", "View", "Formulas", "None"], "answer": "Formulas" },
+            { "q": "In MS-Excel, 'Calculation Option' option is available in _____ tab.", "options": ["Formulas", "Page Layout", "Data", "None"], "answer": "Formulas" },
+            { "q": "In MS-Excel, 'Calculate Sheet' option is available in _____ tab.", "options": ["Home", "Formulas", "Insert", "None"], "answer": "Formulas" },
+            { "q": "In MS-Excel, 'Get External Data from Access' option is available in _____ tab.", "options": ["Data", "Page Layout", "Formulas", "None"], "answer": "Data" },
+            { "q": "In MS-Excel, 'Get External Data from Web' option is available in _____ tab.", "options": ["Home", "Data", "Insert", "None"], "answer": "Data" },
+            { "q": "In MS-Excel, 'Get External Data from Text' option is available in _____ tab.", "options": ["Review", "View", "Data", "None"], "answer": "Data" },
+            { "q": "In MS-Excel, 'Get External Data from Other Sources' option is available in _____ tab.", "options": ["Data", "Page Layout", "Formulas", "None"], "answer": "Data" },
+            { "q": "In MS-Excel, 'Get External Data by using an Existing Connection' option is available in _____ tab.", "options": ["Home", "Data", "Insert", "None"], "answer": "Data" },
+            { "q": "In MS-Excel, 'Refresh All Information in the Workbook' option is available in _____ tab.", "options": ["Review", "View", "Data", "None"], "answer": "Data" },
+            { "q": "In MS-Excel, 'Connections' option is available in _____ tab.", "options": ["Data", "Page Layout", "Formulas", "None"], "answer": "Data" },
+            { "q": "In MS-Excel, 'Data Range Properties' option is available in _____ tab.", "options": ["Home", "Data", "Insert", "None"], "answer": "Data" },
+            { "q": "In MS-Excel, 'Edit Links' option is available in _____ tab.", "options": ["Review", "View", "Data", "None"], "answer": "Data" },
+            { "q": "In MS-Excel, 'Sort A to Z' option is available in _____ tab.", "options": ["Data", "Page Layout", "Formulas", "None"], "answer": "Data" },
+            { "q": "In MS-Excel, 'Sort Z to A' option is available in _____ tab.", "options": ["Home", "Data", "Insert", "None"], "answer": "Data" },
+            { "q": "In MS-Excel, 'Filter' option is available in _____ tab,", "options": ["Review", "View", "Data", "None"], "answer": "Data" },
+            { "q": "In MS-Excel, 'Reapply Filter & Sort' option is available in _____ tab.", "options": ["Data", "Page Layout", "Formulas", "None"], "answer": "Data" },
+            { "q": "In MS-Excel, 'Advanced Filter' option is available in _____ tab", "options": ["Home", "Data", "Insert", "None"], "answer": "Data" },
+            { "q": "In MS-Excel, 'Text to Columns' option is available in _____ tab.", "options": ["Review", "View", "Data", "None"], "answer": "Data" },
+            { "q": "In MS-Excel, 'Remove Duplicates' option is available in _____ tab.", "options": ["Data", "Page Layout", "Formulas", "None"], "answer": "Data" },
+            { "q": "In MS-Excel, 'Data Validation' option is available in _____ tab.", "options": ["Home", "Data", "Insert", "None"], "answer": "Data" },
+            { "q": "In MS-Excel, 'Consolidate' option is available in _____ tab.", "options": ["Review", "View", "Data", "None"], "answer": "Data" },
+            { "q": "In MS-Excel, 'What if Analysis' option is available in _____ tab.", "options": ["Data", "Page Layout", "Formulas", "None"], "answer": "Data" },
+            { "q": "In MS-Excel, 'Group Range of Cells' option is available in _____ tab.", "options": ["Home", "Data", "Insert", "None"], "answer": "Data" },
+            { "q": "In MS-Excel, 'Subtotal' option is available in _____ tab.", "options": ["Review", "View", "Data", "None"], "answer": "Data" },
+            { "q": "In MS-Excel, 'Show Detail' option is available in _____ tab.", "options": ["Data", "Page Layout", "Formulas", "None"], "answer": "Data" },
+            { "q": "In MS-Excel, 'Hide Detail' option is available in _____ tab.", "options": ["Home", "Data", "Insert", "None"], "answer": "Data" },
+            { "q": "In MS-Excel, 'Delete Comment' option is available in _____ tab.", "options": ["Review", "Page Layout", "Formulas", "None"], "answer": "Review" },
+            { "q": "In MS-Excel, 'Previous Comment' option is available in _____ tab.", "options": ["Home", "Review", "Insert", "None"], "answer": "Review" },
+            { "q": "In MS-Excel, 'Next Comment' option is available in _____ tab.", "options": ["Formulas", "View", "Review", "None"], "answer": "Review" },
+            { "q": "In MS-Excel, 'Show/Hide Comment' option is available in _____ tab.", "options": ["Review", "Page Layout", "Formulas", "None"], "answer": "Review" },
+            { "q": "In MS-Excel, 'Show all Comments' option is available in _____ tab.", "options": ["Home", "Review", "Insert", "None"], "answer": "Review" },
+            { "q": "In MS-Excel, 'Show Ink annotation' option is available in _____ tab.", "options": ["Formulas", "View", "Review", "None"], "answer": "Review" },
+            { "q": "In MS-Excel, 'Protect Sheet' option is available in _____ tab.", "options": ["Review", "Page Layout", "Formulas", "None"], "answer": "Review" },
+            { "q": "In MS-Excel, 'Protect Workbook' option is available in _____ tab.", "options": ["Home", "Review", "Insert", "None"], "answer": "Review" },
+            { "q": "In MS-Excel, 'Share Workbook' option is available in _____ tab.", "options": ["Formulas", "View", "Review", "None"], "answer": "Review" },
+            { "q": "In MS-Excel, 'Protect & Share Workbook' option is available in _____ tab.", "options": ["Review", "Page Layout", "Formulas", "None"], "answer": "Review" }
+        ]; */
+
+        class QuizApp {
+            constructor() {
+                this.questions = [];
+                this.currentQuestionIndex = 0;
+                this.score = 0;
+                this.timer = null;
+                this.totalTime = 3600; // 60 minutes
+                this.timeLeft = this.totalTime;
+                this.userAnswers = [];
+                this.timeTaken = 0;
+
+                // UI Elements
+                this.screens = {
+                    start: document.getElementById('startScreen'),
+                    quiz: document.getElementById('quizScreen'),
+                    result: document.getElementById('resultScreen')
+                };
+                this.timerBadge = document.getElementById('timerBadge');
+                this.timeDisplay = document.getElementById('timeDisplay');
+                this.questionText = document.getElementById('questionText');
+                this.optionsContainer = document.getElementById('optionsContainer');
+                this.nextBtn = document.getElementById('nextBtn');
+                this.prevBtn = document.getElementById('prevBtn');
+                this.currentQuestionNum = document.getElementById('currentQuestionNum');
+                this.progressBar = document.getElementById('progressBar');
+                this.progressContainer = document.getElementById('progressContainer');
+
+                // Dashboard elements
+                this.dashAnswered = document.getElementById('dashAnswered');
+                this.dashSkipped = document.getElementById('dashSkipped');
+                this.dashRemaining = document.getElementById('dashRemaining');
+
+                // Navigator elements
+                this.navigatorGrid = document.getElementById('navigatorGrid');
+
+                // Footer controls
+                this.backToHomeBtn = document.getElementById('backToHomeBtn');
+
+                // Modal Elements
+                this.submitModal = document.getElementById('submitModal');
+            }
+
+            // Utility: Fisher-Yates Shuffle
+            shuffle(array) {
+                let currentIndex = array.length, randomIndex;
+                let mixed = [...array];
+
+                while (currentIndex != 0) {
+                    randomIndex = Math.floor(Math.random() * currentIndex);
+                    currentIndex--;
+                    [mixed[currentIndex], mixed[randomIndex]] = [mixed[randomIndex], mixed[currentIndex]];
+                }
+                return mixed;
+            }
+
+            startQuiz() {
+                this.score = 0;
+                this.currentQuestionIndex = 0;
+                this.timeLeft = this.totalTime;
+                this.timeTaken = 0;
+
+                // 1. Shuffle full bank
+                // 2. Slice first 100 questions
+                // 3. DO NOT Shuffle options (per request)
+                const sessionQuestions = this.shuffle(fullQuestionBank).slice(0, 100);
+
+                this.questions = sessionQuestions.map(q => {
+                    return {
+                        text: q.q,
+                        correctAnswer: q.answer,
+                        options: [...q.options] // No shuffling here, keeping original order
+                    };
+                });
+
+                this.userAnswers = new Array(this.questions.length).fill(null);
+
+                // Initialize Navigator
+                this.createNavigator();
+
+                // Update UI
+                this.switchScreen('quiz');
+                this.timerBadge.style.display = 'flex';
+                this.progressContainer.style.display = 'block';
+
+                // Hide back button during exam
+                if (this.backToHomeBtn) this.backToHomeBtn.style.display = 'none';
+
+                // Start Timer & Load first question
+                this.startTimer();
+                this.loadQuestion();
+            }
+
+            createNavigator() {
+                this.navigatorGrid.innerHTML = '';
+                this.questions.forEach((_, index) => {
+                    const btn = document.createElement('div');
+                    btn.className = 'nav-btn';
+                    btn.textContent = index + 1;
+                    btn.onclick = () => this.jumpToQuestion(index);
+                    this.navigatorGrid.appendChild(btn);
+                });
+            }
+
+            updateNavigator() {
+                const buttons = this.navigatorGrid.children;
+                for (let i = 0; i < buttons.length; i++) {
+                    const btn = buttons[i];
+                    btn.className = 'nav-btn'; // Reset
+
+                    if (this.userAnswers[i] !== null) {
+                        btn.classList.add('answered');
+                    }
+
+                    if (i === this.currentQuestionIndex) {
+                        btn.classList.add('current');
+                    }
+                }
+            }
+
+            togglePalette() {
+                this.navigatorGrid.classList.toggle('open');
+                const trigger = document.getElementById('navTrigger');
+                trigger.classList.toggle('active');
+            }
+
+            jumpToQuestion(index) {
+                this.currentQuestionIndex = index;
+                this.loadQuestion();
+                // Optional: Close navigator on jump on mobile?
+                if (window.innerWidth < 600) {
+                    this.navigatorGrid.classList.remove('open');
+                    document.getElementById('navTrigger').classList.remove('active');
+                }
+            }
+
+            switchScreen(screenName) {
+                Object.values(this.screens).forEach(s => s.classList.remove('active'));
+                this.screens[screenName].classList.add('active');
+                window.scrollTo(0, 0);
+            }
+
+            startTimer() {
+                if (this.timer) clearInterval(this.timer);
+
+                this.updateTimerDisplay();
+
+                this.timer = setInterval(() => {
+                    this.timeLeft--;
+                    this.updateTimerDisplay();
+
+                    if (this.timeLeft <= 0) {
+                        this.finishQuiz();
+                    }
+                }, 1000);
+            }
+
+            updateTimerDisplay() {
+                const minutes = Math.floor(this.timeLeft / 60);
+                const seconds = this.timeLeft % 60;
+
+                const displayMin = minutes < 10 ? '0' + minutes : minutes;
+                const displaySec = seconds < 10 ? '0' + seconds : seconds;
+
+                this.timeDisplay.textContent = `${displayMin}:${displaySec}`;
+
+                // Warning logic: Last 5 minutes (300 seconds) for a 30 min exam
+                if (this.timeLeft < 300) {
+                    this.timerBadge.classList.add('timer-warning');
+                    // Remove manual style to let class take over
+                    this.timerBadge.style.backgroundColor = '';
+                } else {
+                    this.timerBadge.classList.remove('timer-warning');
+                    this.timerBadge.style.backgroundColor = 'rgba(255,255,255,0.15)';
+                }
+            }
+
+            updateDashboard() {
+                const answeredCount = this.userAnswers.filter(a => a !== null).length;
+                const skippedCount = this.userAnswers.slice(0, this.currentQuestionIndex).filter(a => a === null).length;
+                const remainingCount = this.questions.length - (this.currentQuestionIndex + 1);
+
+                if (this.dashAnswered) this.dashAnswered.textContent = answeredCount;
+                if (this.dashSkipped) this.dashSkipped.textContent = skippedCount;
+                if (this.dashRemaining) this.dashRemaining.textContent = remainingCount;
+            }
+
+            loadQuestion() {
+                const q = this.questions[this.currentQuestionIndex];
+                const savedAnswer = this.userAnswers[this.currentQuestionIndex];
+
+                this.currentQuestionNum.textContent = this.currentQuestionIndex + 1;
+
+                // Update Progress Bar
+                const progress = ((this.currentQuestionIndex) / this.questions.length) * 100;
+                this.progressBar.style.width = `${progress}%`;
+
+                // Update Dashboard Stats & Navigator
+                this.updateDashboard();
+                this.updateNavigator();
+
+                this.questionText.textContent = q.text;
+                this.optionsContainer.innerHTML = '';
+
+                // Button States
+                this.prevBtn.disabled = this.currentQuestionIndex === 0;
+                this.nextBtn.textContent = this.currentQuestionIndex === this.questions.length - 1 ? 'Finish' : 'Next';
+
+                q.options.forEach((opt, index) => {
+                    const btn = document.createElement('div');
+                    btn.className = 'option-btn';
+                    if (savedAnswer === opt) {
+                        btn.classList.add('selected');
+                    }
+
+                    btn.innerHTML = `
+                    <div class="option-marker"></div>
+                    <span>${opt}</span>
+                `;
+                    btn.onclick = () => this.selectOption(index, opt, btn);
+                    this.optionsContainer.appendChild(btn);
+                });
+            }
+
+            selectOption(index, text, element) {
+                const buttons = this.optionsContainer.children;
+                for (let btn of buttons) {
+                    btn.classList.remove('selected');
+                }
+
+                element.classList.add('selected');
+                this.userAnswers[this.currentQuestionIndex] = text;
+
+                // Update dashboard & navigator immediately upon selection
+                this.updateDashboard();
+                this.updateNavigator();
+            }
+
+            nextQuestion() {
+                if (this.currentQuestionIndex < this.questions.length - 1) {
+                    this.currentQuestionIndex++;
+                    this.loadQuestion();
+                } else {
+                    this.submitQuiz();
+                }
+            }
+
+            prevQuestion() {
+                if (this.currentQuestionIndex > 0) {
+                    this.currentQuestionIndex--;
+                    this.loadQuestion();
+                }
+            }
+
+            submitQuiz() {
+                // Replaced direct finishQuiz() with modal trigger
+                this.showSubmitModal();
+            }
+
+            showSubmitModal() {
+                this.submitModal.classList.add('active');
+                // Refresh icon inside modal if it was dynamically added
+                lucide.createIcons();
+            }
+
+            hideSubmitModal() {
+                this.submitModal.classList.remove('active');
+            }
+
+            confirmSubmit() {
+                this.hideSubmitModal();
+                this.finishQuiz();
+            }
+
+            finishQuiz() {
+                clearInterval(this.timer);
+                this.timeTaken = this.totalTime - this.timeLeft;
+                this.calculateScore();
+                this.showResults();
+            }
+
+            calculateScore() {
+                this.score = 0;
+                this.questions.forEach((q, index) => {
+                    if (this.userAnswers[index] === q.correctAnswer) {
+                        this.score++;
+                    }
+                });
+            }
+
+            formatTime(seconds) {
+                const m = Math.floor(seconds / 60);
+                const s = seconds % 60;
+                return `${m}m ${s}s`;
+            }
+
+            showResults() {
+                this.switchScreen('result');
+                this.timerBadge.style.display = 'none';
+                this.progressContainer.style.display = 'none';
+
+                // Show back button on results
+                if (this.backToHomeBtn) this.backToHomeBtn.style.display = 'flex';
+
+                const wrongCount = this.questions.length - this.score;
+                const percentage = (this.score / this.questions.length) * 100;
+
+                // DOM Elements for Result Screen
+                const resultStatus = document.getElementById('resultStatus');
+                const resultMessage = document.getElementById('resultMessage');
+                const scoreCircle = document.getElementById('scoreCircle');
+                const scoreValue = document.getElementById('finalScore');
+
+                // Stats
+                document.getElementById('totalCountResult').textContent = this.questions.length;
+                document.getElementById('timeTakenResult').textContent = this.formatTime(this.timeTaken);
+                document.getElementById('correctCountResult').textContent = this.score;
+                document.getElementById('wrongCountResult').textContent = wrongCount;
+
+                // Animated Score
+                scoreValue.textContent = this.score;
+
+                // Determine Pass/Fail Status and Styling
+                scoreCircle.className = 'score-circle-new'; // reset class
+                resultStatus.className = 'result-status'; // reset class
+
+                if (percentage >= 50) {
+                    resultStatus.textContent = "PASSED";
+                    resultStatus.classList.add('status-passed');
+                    resultMessage.textContent = "Great Job! You have successfully passed the assessment.";
+                    scoreCircle.classList.add('score-circle-shadow-pass');
+
+                    // Update shadow pseudo-element via style injection
+                    const styleSheet = document.createElement("style");
+                    styleSheet.innerHTML = `
+                    .score-circle-new::before { background: conic-gradient(var(--success-color) ${percentage}%, var(--bg-body) 0%); }
+                `;
+                    document.head.appendChild(styleSheet);
+
+                } else {
+                    resultStatus.textContent = "FAILED";
+                    resultStatus.classList.add('status-failed');
+                    resultMessage.textContent = "Don't give up. Review your answers.";
+                    scoreCircle.classList.add('score-circle-shadow-fail');
+
+                    const styleSheet = document.createElement("style");
+                    styleSheet.innerHTML = `
+                    .score-circle-new::before { background: conic-gradient(var(--danger-color) ${percentage}%, var(--bg-body) 0%); }
+                `;
+                    document.head.appendChild(styleSheet);
+                }
+
+                // Populate Review Section
+                const reviewContainer = document.getElementById('reviewContainer');
+                reviewContainer.innerHTML = '';
+
+                this.questions.forEach((q, index) => {
+                    const userAnswer = this.userAnswers[index];
+                    const isCorrect = userAnswer === q.correctAnswer;
+
+                    const reviewItem = document.createElement('div');
+                    reviewItem.className = 'review-item';
+
+                    let statusHtml = '';
+                    let answerHtml = '';
+
+                    if (isCorrect) {
+                        statusHtml = `<div class="meta-badge status-correct">✔ Correct</div>`;
+                        answerHtml = `<div class="user-answer">Your Answer: <strong>${userAnswer}</strong></div>`;
+                    } else if (!userAnswer) {
+                        statusHtml = `<div class="meta-badge status-skipped">⚪ Skipped</div>`;
+                        answerHtml = `
+                        <div class="user-answer">Your Answer: <em>None</em></div>
+                        <span class="correct-answer-text">Correct Answer: ${q.correctAnswer}</span>
+                    `;
+                    } else {
+                        statusHtml = `<div class="meta-badge status-wrong">✖ Wrong</div>`;
+                        answerHtml = `
+                        <div class="user-answer">Your Answer: <span style="text-decoration: line-through; opacity: 0.7;">${userAnswer}</span></div>
+                        <span class="correct-answer-text">Correct Answer: ${q.correctAnswer}</span>
+                    `;
+                    }
+
+                    reviewItem.innerHTML = `
+                    <div class="review-question">${index + 1}. ${q.text}</div>
+                    <div class="review-meta">${statusHtml}</div>
+                    <div style="margin-top: 8px; font-size: 0.95rem;">${answerHtml}</div>
+                `;
+                    reviewContainer.appendChild(reviewItem);
+                });
+            }
+
+            resetQuiz() {
+                this.switchScreen('start');
+                // Show back button on start screen
+                if (this.backToHomeBtn) this.backToHomeBtn.style.display = 'flex';
+            }
+        }
+
+        const quizApp = new QuizApp();
+    </script>
+
+</body>
+
+</html>
