@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vision Nxt Online Exam Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        dark: {
+                            bg: '#0f172a',
+                            card: '#1e293b',
+                            border: '#334155'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+        }
+        .bg-gradient-light {
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+        }
+        .bg-gradient-dark {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        .category-card { 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .category-card:hover { 
+            transform: translateY(-8px); 
+        }
+        .category-card:active {
+            transform: scale(0.98);
+        }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        @keyframes pulse-soft {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+        .btn-pulse { animation: pulse-soft 2s infinite; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+    <script>
+        // Check for saved theme preference or default to DARK mode
+        // Logic: If 'light' is explicitly stored, use light. Otherwise (null or 'dark'), use dark.
+        if (localStorage.theme === 'light') {
+            document.documentElement.classList.remove('dark')
+        } else {
+            document.documentElement.classList.add('dark')
+        }
+    </script>
+</head>
+<body class="text-gray-900 dark:text-slate-200 min-h-screen flex flex-col bg-gray-50 dark:bg-slate-900 transition-colors duration-300">
+
+    <!-- Header -->
+    <header class="bg-white/90 dark:bg-slate-900/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-gray-200 dark:border-slate-800 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center gap-3 overflow-hidden">
+                    <div class="bg-indigo-600 text-white p-2 rounded-lg shadow-md shadow-indigo-200 dark:shadow-none flex-shrink-0">
+                        <i class="fa-solid fa-graduation-cap text-lg md:text-xl"></i>
+                    </div>
+                    <h1 class="text-lg md:text-xl font-bold tracking-tight text-gray-900 dark:text-white truncate">
+                        careergenius <span class="text-indigo-600 dark:text-indigo-400"></span>
+                    </h1>
+                </div>
+
+                <!-- Dark Mode Toggle -->
+                <button onclick="toggleTheme()" class="p-2 ml-2 rounded-full text-gray-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-yellow-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 flex-shrink-0 touch-manipulation" aria-label="Toggle Dark Mode">
+                    <i id="theme-icon" class="fa-solid fa-moon text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-container" class="flex-grow p-4 md:p-6 flex flex-col items-center justify-center relative overflow-hidden">
+        <!-- Background Decor -->
+        <div class="absolute inset-0 z-0 pointer-events-none">
+            <div class="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl dark:bg-indigo-500/5"></div>
+            <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl dark:bg-blue-500/5"></div>
+        </div>
+
+        <!-- DASHBOARD VIEW -->
+        <div id="dashboard-view" class="max-w-7xl w-full mx-auto fade-in py-6 md:py-0 z-10">
+            
+            <!-- Hero Section -->
+            <div class="text-center mb-8 md:mb-12 mt-2 md:mt-4">
+                <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 tracking-tight px-2">
+                    Select Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500 dark:from-indigo-400 dark:to-blue-400">Exam Subject</span>
+                </h2>
+                <p class="text-gray-500 dark:text-slate-400 max-w-2xl mx-auto text-sm md:text-lg px-4">
+                    Choose a category below to begin your assessment. Ensure you're in a quiet environment.
+                </p>
+                
+                <!-- Refined Instruction Box -->
+                <div class="mt-8 inline-flex items-center bg-white dark:bg-slate-800 border border-amber-200 dark:border-amber-900/50 rounded-full px-5 py-2 shadow-sm dark:shadow-slate-900/50 text-xs md:text-sm text-amber-800 dark:text-amber-400 gap-3 mx-2 transition-colors duration-300 max-w-full">
+                    <div class="w-2 h-2 rounded-full bg-amber-500 animate-pulse flex-shrink-0"></div>
+                    <span class="text-left md:text-center truncate"><strong>Note:</strong> Do not refresh the page during the exam.</span>
+                </div>
+            </div>
+
+            <!-- Cards Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 px-2 md:px-4">
+                
+                <!-- 1. MS-Office -->
+                <div onclick="openExamModal('MS-Office')" class="category-card bg-white dark:bg-slate-800 rounded-2xl p-5 md:p-6 border border-gray-200 dark:border-slate-700 cursor-pointer relative overflow-hidden group hover:border-orange-300 dark:hover:border-orange-500/50 shadow-sm hover:shadow-lg dark:shadow-slate-900/50 hover:shadow-orange-500/10 dark:hover:shadow-orange-900/20">
+                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-orange-50 dark:bg-orange-500/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+                    
+                    <div class="w-12 h-12 md:w-14 md:h-14 bg-orange-100 dark:bg-orange-500/20 rounded-xl flex items-center justify-center mb-4 md:mb-6 shadow-sm group-hover:bg-orange-600 group-hover:text-white transition-colors duration-300">
+                        <i class="fa-brands fa-microsoft text-xl md:text-2xl text-orange-600 dark:text-orange-400 group-hover:text-white"></i>
+                    </div>
+                    
+                    <h3 class="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">MS-Office</h3>
+                    <p class="text-gray-500 dark:text-slate-400 text-xs md:text-sm mb-4 md:mb-6 leading-relaxed">Complete suite mastery: Word, Excel, and PowerPoint.</p>
+                    
+                    <div class="flex items-center text-orange-600 dark:text-orange-400 font-semibold text-xs md:text-sm group-hover:translate-x-2 transition-transform">
+                        Start Assessment <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </div>
+                </div>
+
+                <!-- 2. DAF -->
+                <div onclick="openExamModal('DAF')" class="category-card bg-white dark:bg-slate-800 rounded-2xl p-5 md:p-6 border border-gray-200 dark:border-slate-700 cursor-pointer relative overflow-hidden group hover:border-cyan-300 dark:hover:border-cyan-500/50 shadow-sm hover:shadow-lg dark:shadow-slate-900/50 hover:shadow-cyan-500/10 dark:hover:shadow-cyan-900/20">
+                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-cyan-50 dark:bg-cyan-500/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+                    
+                    <div class="w-12 h-12 md:w-14 md:h-14 bg-cyan-100 dark:bg-cyan-500/20 rounded-xl flex items-center justify-center mb-4 md:mb-6 shadow-sm group-hover:bg-cyan-600 group-hover:text-white transition-colors duration-300">
+                        <i class="fa-solid fa-file-invoice-dollar text-xl md:text-2xl text-cyan-600 dark:text-cyan-400 group-hover:text-white"></i>
+                    </div>
+                    
+                    <h3 class="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">DAF</h3>
+                    <p class="text-gray-500 dark:text-slate-400 text-xs md:text-sm mb-4 md:mb-6 leading-relaxed">Diploma in Accounting & Finance comprehensive exam.</p>
+                    
+                    <div class="flex items-center text-cyan-600 dark:text-cyan-400 font-semibold text-xs md:text-sm group-hover:translate-x-2 transition-transform">
+                        Start Assessment <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </div>
+                </div>
+
+                <!-- 3. Adv Excel -->
+                <div onclick="openExamModal('Advanced Excel')" class="category-card bg-white dark:bg-slate-800 rounded-2xl p-5 md:p-6 border border-gray-200 dark:border-slate-700 cursor-pointer relative overflow-hidden group hover:border-green-300 dark:hover:border-green-500/50 shadow-sm hover:shadow-lg dark:shadow-slate-900/50 hover:shadow-green-500/10 dark:hover:shadow-green-900/20">
+                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-green-50 dark:bg-green-500/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+                    
+                    <div class="w-12 h-12 md:w-14 md:h-14 bg-green-100 dark:bg-green-500/20 rounded-xl flex items-center justify-center mb-4 md:mb-6 shadow-sm group-hover:bg-green-600 group-hover:text-white transition-colors duration-300">
+                        <i class="fa-solid fa-file-excel text-xl md:text-2xl text-green-600 dark:text-green-400 group-hover:text-white"></i>
+                    </div>
+                    
+                    <h3 class="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">Adv Excel</h3>
+                    <p class="text-gray-500 dark:text-slate-400 text-xs md:text-sm mb-4 md:mb-6 leading-relaxed">Advanced formulas, pivot tables, and data analytics.</p>
+                    
+                    <div class="flex items-center text-green-600 dark:text-green-400 font-semibold text-xs md:text-sm group-hover:translate-x-2 transition-transform">
+                        Start Assessment <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </div>
+                </div>
+
+                <!-- 4. Tally -->
+                <div onclick="openExamModal('Tally')" class="category-card bg-white dark:bg-slate-800 rounded-2xl p-5 md:p-6 border border-gray-200 dark:border-slate-700 cursor-pointer relative overflow-hidden group hover:border-amber-300 dark:hover:border-amber-500/50 shadow-sm hover:shadow-lg dark:shadow-slate-900/50 hover:shadow-amber-500/10 dark:hover:shadow-amber-900/20">
+                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-amber-50 dark:bg-amber-500/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+                    
+                    <div class="w-12 h-12 md:w-14 md:h-14 bg-amber-100 dark:bg-amber-500/20 rounded-xl flex items-center justify-center mb-4 md:mb-6 shadow-sm group-hover:bg-amber-600 group-hover:text-white transition-colors duration-300">
+                        <i class="fa-solid fa-calculator text-xl md:text-2xl text-amber-600 dark:text-amber-400 group-hover:text-white"></i>
+                    </div>
+                    
+                    <h3 class="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">Tally</h3>
+                    <p class="text-gray-500 dark:text-slate-400 text-xs md:text-sm mb-4 md:mb-6 leading-relaxed">Accounting principles, inventory, and voucher entries.</p>
+                    
+                    <div class="flex items-center text-amber-600 dark:text-amber-400 font-semibold text-xs md:text-sm group-hover:translate-x-2 transition-transform">
+                        Start Assessment <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </div>
+                </div>
+
+                <!-- 5. Graphic Design -->
+                <div onclick="openExamModal('Graphic Designing')" class="category-card bg-white dark:bg-slate-800 rounded-2xl p-5 md:p-6 border border-gray-200 dark:border-slate-700 cursor-pointer relative overflow-hidden group hover:border-purple-300 dark:hover:border-purple-500/50 shadow-sm hover:shadow-lg dark:shadow-slate-900/50 hover:shadow-purple-500/10 dark:hover:shadow-purple-900/20">
+                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-purple-50 dark:bg-purple-500/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+                    
+                    <div class="w-12 h-12 md:w-14 md:h-14 bg-purple-100 dark:bg-purple-500/20 rounded-xl flex items-center justify-center mb-4 md:mb-6 shadow-sm group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300">
+                        <i class="fa-solid fa-pen-nib text-xl md:text-2xl text-purple-600 dark:text-purple-400 group-hover:text-white"></i>
+                    </div>
+                    
+                    <h3 class="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Graphic Design</h3>
+                    <p class="text-gray-500 dark:text-slate-400 text-xs md:text-sm mb-4 md:mb-6 leading-relaxed">Visual concepts, typography, and creative design tools.</p>
+                    
+                    <div class="flex items-center text-purple-600 dark:text-purple-400 font-semibold text-xs md:text-sm group-hover:translate-x-2 transition-transform">
+                        Start Assessment <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </div>
+                </div>
+
+                <!-- 6. Crash Course -->
+                <div onclick="openExamModal('Crash Course')" class="category-card bg-white dark:bg-slate-800 rounded-2xl p-5 md:p-6 border border-gray-200 dark:border-slate-700 cursor-pointer relative overflow-hidden group hover:border-rose-300 dark:hover:border-rose-500/50 shadow-sm hover:shadow-lg dark:shadow-slate-900/50 hover:shadow-rose-500/10 dark:hover:shadow-rose-900/20">
+                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-rose-50 dark:bg-rose-500/10 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+                    
+                    <div class="w-12 h-12 md:w-14 md:h-14 bg-rose-100 dark:bg-rose-500/20 rounded-xl flex items-center justify-center mb-4 md:mb-6 shadow-sm group-hover:bg-rose-600 group-hover:text-white transition-colors duration-300">
+                        <i class="fa-solid fa-bolt text-xl md:text-2xl text-rose-600 dark:text-rose-400 group-hover:text-white"></i>
+                    </div>
+                    
+                    <h3 class="text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">Crash Course</h3>
+                    <p class="text-gray-500 dark:text-slate-400 text-xs md:text-sm mb-4 md:mb-6 leading-relaxed">Fast-track learning assessment and rapid review.</p>
+                    
+                    <div class="flex items-center text-rose-600 dark:text-rose-400 font-semibold text-xs md:text-sm group-hover:translate-x-2 transition-transform">
+                        Start Assessment <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 mt-auto transition-colors duration-300">
+        <div class="max-w-7xl mx-auto py-6 md:py-8 px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-xs md:text-sm text-gray-400 dark:text-slate-500">
+                &copy; <span id="current-year"></span> Career genius Education. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Confirmation Modal -->
+    <div id="start-modal" class="fixed inset-0 bg-slate-900/60 dark:bg-black/70 backdrop-blur-sm hidden flex items-center justify-center z-[100] transition-opacity duration-300 p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-sm md:max-w-md mx-auto overflow-hidden transform transition-all scale-100 border border-gray-100 dark:border-slate-700">
+            <div class="bg-white dark:bg-slate-800 p-6 pt-8 text-center border-b border-gray-100 dark:border-slate-700">
+                <div class="mx-auto flex h-14 w-14 md:h-16 md:w-16 items-center justify-center rounded-full bg-red-50 dark:bg-red-500/10 mb-4">
+                    <i class="fa-solid fa-triangle-exclamation text-2xl md:text-3xl text-red-500 dark:text-red-400"></i>
+                </div>
+                <h3 class="text-lg md:text-xl font-bold text-gray-900 dark:text-white">Critical Warning</h3>
+                <p class="text-gray-500 dark:text-slate-400 text-xs md:text-sm mt-2">Please read before proceeding</p>
+            </div>
+            <div class="p-5 md:p-6 bg-gray-50/50 dark:bg-slate-900/50">
+                <div class="space-y-4 text-sm text-gray-600 dark:text-slate-300">
+                    <p class="text-center mb-4">You are starting the <strong id="modal-subject-name" class="text-indigo-600 dark:text-indigo-400">Subject</strong> exam.</p>
+                    
+                    <div class="bg-white dark:bg-slate-800 border border-red-200 dark:border-red-500/30 rounded-xl p-4 text-red-700 dark:text-red-400 text-xs md:text-sm shadow-sm">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-ban mt-1 flex-shrink-0"></i>
+                            <div>
+                                <p class="font-bold mb-1">STRICTLY PROHIBITED</p>
+                                Do not refresh or reload the page. Doing so will immediately terminate your session.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 md:mt-8 flex flex-col-reverse sm:flex-row gap-3">
+                    <button onclick="closeModal()" class="w-full sm:flex-1 px-4 py-2.5 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-xl text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-600 font-medium transition-colors active:scale-95 touch-manipulation">Cancel</button>
+                    <button onclick="startExam()" class="w-full sm:flex-1 px-4 py-2.5 bg-indigo-600 dark:bg-indigo-500 text-white rounded-xl hover:bg-indigo-700 dark:hover:bg-indigo-600 font-medium shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30 transition-all btn-pulse active:scale-95 touch-manipulation">I Understand</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const startModal = document.getElementById('start-modal');
+        const modalSubjectName = document.getElementById('modal-subject-name');
+        const themeIcon = document.getElementById('theme-icon');
+        let currentSubject = '';
+
+        // Auto-update footer year
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        // Initial Icon Set
+        updateThemeIcon();
+
+        function toggleTheme() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.theme = 'light';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.theme = 'dark';
+            }
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            if (document.documentElement.classList.contains('dark')) {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            } else {
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            }
+        }
+
+        function openExamModal(subject) {
+            currentSubject = subject;
+            modalSubjectName.textContent = subject;
+            startModal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            startModal.classList.add('hidden');
+        }
+
+        function startExam() {
+    closeModal();
+
+    const routeMap = {
+        'Advanced Excel': '/adv_excel',
+        'Tally': '/tally',
+        'Graphic Designing': '/graphics',
+        'MS-Office': '/ms_office',
+        'DAF': '/daf',
+        'Crash Course': '/crash_course'
+    };
+
+    const targetRoute = routeMap[currentSubject];
+
+    if (targetRoute) {
+        window.location.href = targetRoute;
+    } else {
+        alert("Exam page not found for " + currentSubject);
+    }
+}
+    </script>
+</body>
+</html>
